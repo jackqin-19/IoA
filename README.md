@@ -1,58 +1,109 @@
-Internet of Agents
-<p align="center">
-  <a href="https://openbmb.github.io/IoA/">Documentation</a> |
-  <a href="https://arxiv.org/abs/2407.07061">Paper</a>
-</p>
-
-🔧 This Repository
-This repository is a personal fork of OpenBMB/IoA, used as the foundation for my undergraduate graduation project.
-The original IoA framework is preserved while this repository focuses on further exploration and improvement of multi-agent collaboration.
-Current Modifications
-- Updated the Open Instruction demo to support newer OpenAI-compatible models.
-- Updated the default LLM configuration for AutoGPT and Open Interpreter.
-- Verified the IoA multi-agent demo with Docker Compose.
-- Configured and tested an OpenAI-compatible API endpoint.
-- Further improvements will be developed as part of the graduation project.
-Note: This repository is under active development. More modifications and experimental results will be added during the project.
-
-🌎 What is Internet of Agents?
-Imagine if AI agents could collaborate like humans do on the internet. That's the idea behind Internet of Agents (IoA)!
-It's an open-source framework that aims to create a platform where diverse AI agents can team up to tackle complex tasks.
-For example, agents like AutoGPT and Open Interpreter can come together, share their unique skills, and work on problems that might be too tricky for a single agent to solve.
-🚀 Key Features
-- 🌐 Internet-Inspired Architecture: Just like how the internet connects people, IoA can connect different AI agents across different environments.
-- 🤝 Autonomous Nested Team Formation: Agents can form teams and sub-teams on their own, adapting to complex tasks.
-- 🧩 Heterogeneous Agent Integration: Brings together agents with different skills and backgrounds, kind of like assembling an all-star team.
-- ⏳ Asynchronous Task Execution: Agents can multitask, making the whole system more efficient.
-- 🗣️ Adaptive Conversation Flow: The conversation flow is autonomously managed to keep agent conversations structured but flexible.
-- 🔄 Scalable and Extensible: Easy to add new types of agents or tackle different kinds of tasks.
-For more details, please refer to the IoA paper.
-<p align="center">
-  <img src="https://github.com/OpenBMB/IoA/assets/32613237/126082a8-432b-4039-8acd-49f4798a492c">
-  <br>
-  <em>A peek at IoA's layered architecture</em>
-</p>
+<h1 align="center">
+    <img alt="Internet of Agents" src="https://github.com/OpenBMB/IoA/assets/32613237/04cbe3dc-84e1-4d70-ba5c-e8b07d3ee31d" style="width: 1em; height: 1em;">
+    Internet of Agents
+</h1>
 
 <p align="center">
-  <img src="https://github.com/OpenBMB/IoA/assets/32613237/6d081cd8-a935-4e34-a24d-62eb65f8c6ec">
-  <br>
-  <em>How IoA works</em>
+    <a href="https://discord.gg/E5XPtynFDh">
+        <img alt="Discord" src="https://img.shields.io/discord/1259737237763919963?logo=discord&style=flat&logoColor=white"/>
+    </a>
+    <a href="https://github.com/astral-sh/ruff">
+        <img alt="Code Formater: Ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json">
+    </a>
+    <a href="https://github.com/jackqin-19/IoA/LICENSE">
+        <img alt="License" src="https://img.shields.io/github/license/jackqin-19/IoA">
+    </a>
+    <br>
+    <br>
+    【<a href="https://openbmb.github.io/IoA/">Documentation</a> |
+    <a href="https://arxiv.org/abs/2407.07061">Paper</a>】
+    <br>
 </p>
 
-🚀 Quick Start
-1. 📋 Prerequisites
-Make sure the following software is installed:
-- Docker
-- Docker Compose
-- Git
-2. 📥 Clone the Repository
-Clone this fork instead of the original OpenBMB repository:
+---
+
+## 🌎 What is Internet of Agents?
+
+Imagine if AI agents could collaborate like humans do on the internet. That's the idea behind Internet of Agents (IoA)! It's an open-source framework that aims to create a platform where diverse AI agents can team up to tackle complex tasks.
+
+For example, agents like [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT) and [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter) can come together, share their unique skills, and work on problems that might be too tricky for a single agent to solve.
+
+## 🚀 Key Features
+
+- 🌐 **Internet-Inspired Architecture**: Just like how the internet connects people, IoA can connect different AI agents across different environments.
+- 🤝 **Autonomous Nested Team Formation**: Agents can form teams and sub-teams on their own, adapting to complex tasks.
+- 🧩 **Heterogeneous Agent Integration**: Brings together agents with different skills and backgrounds, kind of like assembling an all-star team.
+- ⏳ **Asynchronous Task Execution**: Agents can multitask, making the whole system more efficient.
+- 🗣️ **Adaptive Conversation Flow**: The conversation flow is autonomously managed to keep agent conversations structured but flexible.
+- 🔄 **Scalable and Extensible**: Easy to add new types of agents or tackle different kinds of tasks.
+
+For more details, please refer to [our paper](https://arxiv.org/abs/2407.07061).
+
+<p align="center" style="color:RGB(160, 160, 160)">
+    <img src="https://github.com/OpenBMB/IoA/assets/32613237/126082a8-432b-4039-8acd-49f4798a492c">
+    <br>
+    A peek at IoA's layered architecture
+</p>
+
+<p align="center" style="color:RGB(160, 160, 160)">
+    <img src="https://github.com/OpenBMB/IoA/assets/32613237/6d081cd8-a935-4e34-a24d-62eb65f8c6ec">
+    <br>
+    How IoA works
+</p>
+
+---
+
+## 🔬 Research Version
+
+This repository is a personal research fork of IoA for undergraduate thesis and subsequent research experiments.
+
+The main purpose of this version is to reproduce the original IoA system locally and provide a foundation for further improvements to multi-agent collaboration.
+
+### Current Modifications
+
+- 🔧 Updated the Open Instruction agent configurations.
+- 🤖 Updated the LLM configuration for AutoGPT and Open Interpreter.
+- 🌐 Added support for OpenAI-compatible API endpoints through environment variables.
+- 🐳 Preserved the original Docker-based deployment architecture.
+- 🧪 Verified the basic multi-agent collaboration workflow between AutoGPT and Open Interpreter.
+
+The current version uses `gpt-5.4` as the configured LLM model in the Open Instruction demo. The actual API endpoint and API key are configured locally through `.env`.
+
+Future work will focus on improving agent coordination, task execution, and the overall efficiency of multi-agent collaboration.
+
+---
+
+## 🚀 Quick Start
+
+Get IoA up and running in just a few steps:
+
+### 1. 📋 Prerequisites
+
+- Ensure you have [Docker](https://www.docker.com/) installed on your system.
+- Git is recommended for cloning and managing the repository.
+- Python 3.10+ is recommended for running local test scripts.
+
+### 2. 📥 Clone the Repository
+
+```bash
 git clone https://github.com/jackqin-19/IoA.git
 cd IoA
+```
 
-3. 🏗️ Build Docker Images
-Core Components
-You can pull the pre-built Docker images:
+If you are working on the original repository instead, you can clone it with:
+
+```bash
+git clone https://github.com/OpenBMB/IoA.git
+cd IoA
+```
+
+### 3. 🏗️ Build Docker Images
+
+#### Core Components
+
+You can directly pull the pre-built docker images from Docker Hub:
+
+```bash
 # Server
 docker pull weize/ioa-server:latest
 
@@ -66,8 +117,12 @@ docker pull weize/ioa-server-frontend:latest
 docker tag weize/ioa-server:latest ioa-server:latest
 docker tag weize/ioa-client:latest ioa-client:latest
 docker tag weize/ioa-server-frontend:latest ioa-server-frontend:latest
+```
 
-Or build from source
+<details>
+<summary>Or you can build from source</summary>
+
+```bash
 # Server
 docker build -f dockerfiles/server.Dockerfile -t ioa-server:latest .
 
@@ -76,141 +131,395 @@ docker build -f dockerfiles/client.Dockerfile -t ioa-client:latest .
 
 # Server Frontend
 docker build -f dockerfiles/server_frontend.Dockerfile -t ioa-server-frontend:latest .
+```
 
-4. 🤖 Agent Images
-ReAct Agent
+</details>
+
+#### Agent Images (Build as needed)
+
+```bash
+# ReAct Agent
 docker pull weize/react-agent:latest
 docker tag weize/react-agent:latest react-agent:latest
 
-AutoGPT
+# AutoGPT
 docker pull weize/autogpt:latest
 docker tag weize/autogpt:latest autogpt:latest
 
-Open Interpreter
+# Open Interpreter
 docker pull weize/open-interpreter:latest
 docker tag weize/open-interpreter:latest open-interpreter:latest
+```
 
-5. 🌐 Launch Milvus Service
+<details>
+<summary>Or you can build from source</summary>
+
+```bash
+# ReAct Agent
+docker build -f dockerfiles/tool_agents/react.Dockerfile -t react-agent:latest .
+
+# AutoGPT
+docker build -f dockerfiles/tool_agents/autogpt.Dockerfile -t autogpt:latest .
+
+# Open Interpreter
+docker build -f dockerfiles/tool_agents/open_interpreter.Dockerfile -t open-interpreter:latest .
+```
+
+</details>
+
+### 4. 🌐 Launch Milvus Service
+
+IoA uses Milvus as part of its agent registry and retrieval infrastructure.
+
+```bash
 docker network create agent_network
 docker compose -f dockerfiles/compose/milvus.yaml up -d
+```
 
-Check the containers:
-docker ps
+If `agent_network` already exists, Docker may report that it already exists. This is normal and can be ignored.
 
-6. ⚙️ Configure Environment Variables
-Create the environment file:
+You can check the Milvus-related containers with:
+
+```bash
+docker compose -f dockerfiles/compose/milvus.yaml ps -a
+```
+
+### 5. 🔑 Configure Environment Variables
+
+Enter the compose directory:
+
+```bash
 cd dockerfiles/compose
+```
+
+Create your local `.env` file from the template.
+
+On Windows:
+
+```cmd
 copy .env_template .env
+```
+
+On Linux/macOS:
+
+```bash
+cp .env_template .env
+```
 
 Then edit:
-dockerfiles/compose/.env
 
-Configure your API information:
+```text
+dockerfiles/compose/.env
+```
+
+Fill in your own API configuration:
+
+```env
 OPENAI_API_KEY=your_api_key
 
-OPENAI_BASE_URL=https://api.uiuihao.com/v1
-OPENAI_API_BASE_URL=https://api.uiuihao.com/v1
-OPENAI_API_BASE=https://api.uiuihao.com/v1
+OPENAI_BASE_URL=https://api.example.com/v1
+OPENAI_API_BASE_URL=https://api.example.com/v1
+OPENAI_API_BASE=https://api.example.com/v1
 
 FAST_LLM=gpt-5.4
 SMART_LLM=gpt-5.4
 
 OPENAI_RESPONSE_LOG_PATH=/app/openai_response_log
+```
 
-Security Warning
-Never commit your real API key to GitHub.
-Keep the real API key only in dockerfiles/compose/.env.
-The .env file is ignored by Git.
+The API endpoint should provide an OpenAI-compatible interface.
 
-7. 🎬 Start IoA
-From the repository root:
-cd ../..
+> ⚠️ **Important:** Do not commit `.env` to Git. It may contain private API credentials.
+
+### 6. 🎬 Start IoA
+
+Return to the repository root:
+
+```bash
+cd ../../
+```
 
 Start the Open Instruction demo:
+
+```bash
 docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml up -d
+```
 
-Check the status:
+Check the status of all services:
+
+```bash
 docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml ps -a
+```
 
-You should see services similar to:
+A successful deployment should contain services such as:
+
+```text
 autogpt-client
-ioa-server
 open-interpreter-client
+ioa-server
 server_frontend
 milvus-standalone
 milvus-etcd
 milvus-minio
 attu
+```
 
-8. 🌐 Access the Web Interface
-After starting the services, open:
-Frontend
+### 7. 🌐 Access the Services
+
+The default ports are:
+
+```text
+Frontend:          http://127.0.0.1
+IoA Server:        http://127.0.0.1:7788
+AutoGPT Client:    http://127.0.0.1:5050
+Open Interpreter:  http://127.0.0.1:5051
+Attu:              http://127.0.0.1:8000
+```
+
+The web frontend can be accessed through:
+
+```text
 http://127.0.0.1
-Other service endpoints:
-- IoA Server: http://127.0.0.1:7788
-- AutoGPT: http://127.0.0.1:5050
-- Open Interpreter: http://127.0.0.1:5051
-- Milvus Attu: http://127.0.0.1:8000
-9. 🧪 Test the Multi-Agent System
-You can send a goal directly to the AutoGPT client.
+```
+
+---
+
+## 🧪 Test It Out
+
+Once the containers are running, you can send a goal to the AutoGPT client.
+
+For example:
+
+```cmd
 curl -X POST http://127.0.0.1:5050/launch_goal -H "Content-Type: application/json" -d "{\"goal\":\"Calculate 12345 times 6789 and give the final result.\",\"max_turns\":2,\"team_member_names\":[\"AutoGPT\",\"Open Interpreter\"]}"
+```
 
-Example response:
-["f5516b5aea3f47c69ae80e9bd198083f","12345 × 6789 = **83,810,205**."]
+A successful request should return the task identifier and the final result:
 
-You can also test a more complex multi-agent task:
-curl -X POST http://127.0.0.1:5050/launch_goal -H "Content-Type: application/json" -d "{\"goal\":\"Analyze the differences between AI Agents and Multi-Agent Systems, and give one practical application example for each.\",\"max_turns\":3,\"team_member_names\":[\"AutoGPT\",\"Open Interpreter\"]}"
+```text
+12345 × 6789 = 83,810,205
+```
 
-10. 🐳 Useful Docker Commands
-View running containers
-docker ps
+You can also test a more meaningful multi-agent task:
 
-View all containers
-docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml ps -a
+```cmd
+curl -X POST http://127.0.0.1:5050/launch_goal -H "Content-Type: application/json" -d "{\"goal\":\"请分析人工智能 Agent 和 Multi-Agent System 的区别，并分别给出一个实际应用例子。\",\"max_turns\":3,\"team_member_names\":[\"AutoGPT\",\"Open Interpreter\"]}"
+```
 
-View AutoGPT logs
-docker logs -f autogpt-client
+The `team_member_names` field specifies which agents participate in the task.
 
-View Open Interpreter logs
-docker logs -f open-interpreter-client
+When it is left as `None`, the agent can decide whether to form a team autonomously.
 
-View IoA server logs
-docker logs -f ioa-server
+---
 
-Stop the IoA demo
-docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml down
+## 🤝 How Multi-Agent Collaboration Works
 
-Start it again
-docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml up -d
+IoA allows multiple agents to cooperate on a shared goal.
 
-11. 🧪 Test the Open Instruction Dataset
-You can use the following script to test IoA on the Open Instruction dataset:
+For example:
+
+```text
+                         User Goal
+                            │
+                            ▼
+                    ┌───────────────┐
+                    │      IoA      │
+                    │ Coordination  │
+                    └───────┬───────┘
+                            │
+                ┌───────────┴───────────┐
+                ▼                       ▼
+          ┌───────────┐           ┌───────────────┐
+          │  AutoGPT  │           │Open Interpreter│
+          │ Reasoning │           │ Code / Tools  │
+          └─────┬─────┘           └──────┬────────┘
+                │                        │
+                └───────────┬────────────┘
+                            ▼
+                       Final Result
+```
+
+Different agents can contribute different capabilities to the same task.
+
+For example:
+
+- **AutoGPT** can focus on reasoning, planning, and task coordination.
+- **Open Interpreter** can execute code and interact with tools.
+- **IoA** provides the communication and coordination infrastructure between agents.
+
+This allows the system to solve tasks collaboratively rather than relying entirely on a single agent.
+
+---
+
+## 🧪 Test with Python
+
+You can also send a request using Python:
+
+```python
+import requests
+
+goal = "I want to know the annual revenue of Microsoft from 2014 to 2020. Please generate a figure in text format showing the trend of the annual revenue, and give me an analysis report."
+
+response = requests.post(
+    "http://127.0.0.1:5050/launch_goal",
+    json={
+        "goal": goal,
+        "max_turns": 20,
+        "team_member_names": ["AutoGPT", "Open Interpreter"],
+    },
+)
+
+print(response.text)
+```
+
+You can also run the original Open Instruction evaluation script:
+
+```bash
 python scripts/open_instruction/test_open_instruction.py
+```
 
-Or send a POST request using Python:
-import requestsgoal = """I want to know the annual revenue of Microsoft from 2014 to 2020.Please generate a figure in text format showing the trend of the annual revenue,and give me an analysis report."""response = requests.post(    "http://127.0.0.1:5050/launch_goal",    json={        "goal": goal,        "max_turns": 20,        "team_member_names": [            "AutoGPT",            "Open Interpreter"        ],    },)print(response)
+---
 
+## 🛠️ Useful Docker Commands
 
-🔬 Graduation Project
-This repository serves as the experimental platform for my undergraduate graduation project.
-The current work is based on the original Internet of Agents framework and focuses on exploring improvements to multi-agent collaboration.
+### Check all containers
+
+```bash
+docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml ps -a
+```
+
+### View AutoGPT logs
+
+```bash
+docker logs -f autogpt-client
+```
+
+### View Open Interpreter logs
+
+```bash
+docker logs -f open-interpreter-client
+```
+
+### View IoA server logs
+
+```bash
+docker logs -f ioa-server
+```
+
+### View the frontend logs
+
+```bash
+docker logs -f server_frontend
+```
+
+### Stop the Open Instruction demo
+
+```bash
+docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml down
+```
+
+### Start the Open Instruction demo again
+
+```bash
+docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml up -d
+```
+
+### Check whether a container is running
+
+```bash
+docker ps
+```
+
+### Stop all containers
+
+```bash
+docker stop $(docker ps -q)
+```
+
+---
+
+## 🔧 Configuration
+
+The Open Instruction configuration can be found at:
+
+```text
+configs/client_configs/cases/open_instruction/
+```
+
+The main agent configurations are:
+
+```text
+autogpt.yaml
+open_interpreter.yaml
+```
+
+The LLM model can be configured in these files.
+
+For example:
+
+```yaml
+llm:
+  llm_type: openai-chat
+  model: gpt-5.4
+  temperature: 0.1
+```
+
+The API key and API endpoint should be configured through:
+
+```text
+dockerfiles/compose/.env
+```
+
+rather than being hard-coded into the source code.
+
+---
+
+## 🔬 Future Research
+
+This repository will serve as the foundation for further research on **multi-agent systems and agent collaboration**.
+
 Potential research directions include:
-- Multi-agent task decomposition
-- Agent communication
-- Task assignment strategies
-- Multi-agent collaboration efficiency
-- Agent coordination mechanisms
-- Heterogeneous agent integration
-- Evaluation of multi-agent systems
-Experimental results and implementation details will be added progressively.
-📚 References
-- Internet of Agents (IoA)
-- OpenBMB
-- AutoGPT
-- Open Interpreter
-- Milvus
-🌟 Acknowledgements
-This project is based on the open-source Internet of Agents framework developed by OpenBMB.
-The original project and its contributors are gratefully acknowledged.
-📄 License
-Please refer to the original project's license for licensing information.
+
+- 🧠 **Improved Agent Coordination**
+- 🤝 **More Efficient Multi-Agent Collaboration**
+- 🧩 **Dynamic Agent Selection**
+- 📡 **Distributed Agent Communication**
+- ⚡ **Parallel and Asynchronous Task Execution**
+- 🔍 **Agent Capability Discovery**
+- 📊 **Multi-Agent System Evaluation**
+- 🤖 **Integration with Modern LLMs and Agent Frameworks**
+
+The long-term goal is to investigate how heterogeneous AI agents can communicate and cooperate more effectively when solving complex tasks.
+
+---
+
+## 📚 References
+
+- **Internet of Agents:** https://arxiv.org/abs/2407.07061
+- **Original IoA Repository:** https://github.com/OpenBMB/IoA
+- **IoA Documentation:** https://openbmb.github.io/IoA/
+
+---
+
+## 🤔 Want to Run IoA Across Different Devices?
+
+Check out the [distributed setup guide](https://openbmb.github.io/IoA/distributed_service/config.html).
+
+IoA is designed to support heterogeneous agents running in different environments, making distributed multi-agent collaboration possible.
+
+We're continuously improving our research version, and feedback is welcome!
+
+---
+
+## 🌟 Join the IoA Adventure!
+
+We're just getting started with IoA, and we'd love your help to make it even better!
+
+Got ideas for cool ways to use IoA, improve agent collaboration, or connect agents across different environments? We're all ears!
+
+- 👾 Chat with us on [Discord](https://discord.gg/E5XPtynFDh)
+- ✉️ Drop us a line at ioa.thunlp@gmail.com
+- 📖 Read the [Documentation](https://openbmb.github.io/IoA/)
+- 📄 Read the [Paper](https://arxiv.org/abs/2407.07061)
+
+Let's explore the future of AI collaboration together! 🚀
