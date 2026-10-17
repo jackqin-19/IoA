@@ -3,6 +3,29 @@ import "./App.css";
 import GroupList from "./components/GroupList/GroupList";
 import ChatWindow from "./components/ChatWindow/ChatWindow";
 
+function mergeMessageHistory(history, liveMessages) {
+  // Keep messages received during the history request without duplicating its overlap.
+  const messageKey = (message) =>
+    JSON.stringify([
+      message.comm_id,
+      message.sender,
+      message.type,
+      message.content,
+      message.task_id,
+      message.goal,
+    ]);
+  const historyKeys = history.map(messageKey);
+  const liveKeys = liveMessages.map(messageKey);
+  let overlap = Math.min(history.length, liveMessages.length);
+  while (overlap > 0) {
+    if (historyKeys.slice(-overlap).every((key, index) => key === liveKeys[index])) {
+      break;
+    }
+    overlap -= 1;
+  }
+  return [...history, ...liveMessages.slice(overlap)];
+}
+
 function App() {
   // Left panel
   const [groups, setGroups] = useState([
@@ -31,61 +54,55 @@ function App() {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [commID2Name, setCommID2Name] = useState({});
 
-  function update_message(message) {
-    setMessages((prevMessages) => {
-      const chatId = message.comm_id;
-      const currentMessages = prevMessages[chatId] || [];
-      return {
-        ...prevMessages,
-        [chatId]: [...currentMessages, message],
-      };
-    });
-  }
-
   useEffect(() => {
-    const MAX_RETRIES = 3; // Adjust the maximum retry attempts
-    const RETRY_INTERVAL = 3000; // Interval between retries in milliseconds
-    let socket; // WebSocket object
-    let connectionEstablished = false; // Flag to track connection status
+    let socket;
+    let reconnectTimer;
+    let stopped = false;
+    let reconnectAttempts = 0;
 
     function connectWebSocket() {
+      if (stopped) return;
       socket = new WebSocket("ws://127.0.0.1:7788/chatlist_ws");
+      const connection = socket;
 
-      // Event Handlers
-      socket.onopen = () => {
-        console.log("WebSocket connection established!");
-        connectionEstablished = true; // Update the flag on successful connection
+      connection.onopen = () => {
+        reconnectAttempts = 0;
       };
 
-      socket.onmessage = (event) => {
-        const message = JSON.parse(event.data); // Assuming the message is in JSON format
-        console.log(message);
+      connection.onmessage = (event) => {
+        if (stopped) return;
+        const message = JSON.parse(event.data);
         switch (message.frontend_type) {
           case "teamup":
-            setGroups((prevGroups) => [
-              {
+            setGroups((prevGroups) => {
+              const group = {
                 comm_id: message.comm_id,
                 agent_names: message.agent_names,
                 team_name: message.team_name || message.agent_names.join(", "),
-              },
-              ...prevGroups,
-            ]);
+              };
+              return prevGroups.some((item) => item.comm_id === message.comm_id)
+                ? prevGroups.map((item) =>
+                    item.comm_id === message.comm_id ? { ...item, ...group } : item
+                  )
+                : [group, ...prevGroups];
+            });
             setCommID2Name((prev) => ({
               ...prev,
               [message.comm_id]: message.team_name || message.agent_names.join(", "),
             }));
             break;
           case "message":
-            update_message(message);
-            let commId = message.comm_id;
-            setGroups((prevGroups) => {
-              return prevGroups.map((group) => {
-                if (group.comm_id === commId) {
-                  group.latest_message = `[${message.sender}]: ${message.content}`;
-                }
-                return group;
-              });
-            });
+            setMessages((prevMessages) => ({
+              ...prevMessages,
+              [message.comm_id]: [...(prevMessages[message.comm_id] || []), message],
+            }));
+            setGroups((prevGroups) =>
+              prevGroups.map((group) =>
+                group.comm_id === message.comm_id
+                  ? { ...group, latest_message: `[${message.sender}]: ${message.content}` }
+                  : group
+              )
+            );
             break;
 
           default:
@@ -93,39 +110,37 @@ function App() {
         }
       };
 
-      socket.onerror = (error) => {
+      connection.onerror = (error) => {
         console.error("WebSocket error:", error);
-        connectionEstablished = false; // Update the flag on error
+        connection.close();
       };
 
-      socket.onclose = (event) => {
-        console.log("WebSocket connection closed:", event);
-        connectionEstablished = false; // Update the flag on close
+      connection.onclose = () => {
+        if (stopped) return;
+        socket = null;
+        const delay = Math.min(3000 * 2 ** reconnectAttempts, 30000);
+        reconnectAttempts += 1;
+        reconnectTimer = setTimeout(connectWebSocket, delay);
       };
     }
 
-    let retries = 0;
-    const intervalId = setInterval(() => {
-      if (!connectionEstablished && retries < MAX_RETRIES) {
-        connectWebSocket();
-        retries++;
-      } else {
-        clearInterval(intervalId); // Stop trying after a successful connection or max retries
-      }
-    }, RETRY_INTERVAL);
+    connectWebSocket();
 
     return () => {
-      clearInterval(intervalId);
+      stopped = true;
+      clearTimeout(reconnectTimer);
       if (socket) {
-        socket.close(); // Correct method to close the WebSocket
+        socket.close();
       }
     };
   }, []);
 
   // Fetch all the chat records from the server when initialized
   useEffect(() => {
+    const controller = new AbortController();
     fetch("http://127.0.0.1:7788/fetch_chat_record", {
       method: "POST",
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
       },
@@ -160,13 +175,27 @@ function App() {
             ...newGroups,
           ];
         }
-        setMessages(newMessages);
-        setGroups(newGroups);
-        setCommID2Name(newCommID2Name);
+        setMessages((prevMessages) => {
+          const merged = { ...prevMessages };
+          for (const commId in newMessages) {
+            merged[commId] = mergeMessageHistory(newMessages[commId], prevMessages[commId] || []);
+          }
+          return merged;
+        });
+        setGroups((prevGroups) => {
+          const fetchedIds = new Set(newGroups.map((group) => group.comm_id));
+          const liveGroups = new Map(prevGroups.map((group) => [group.comm_id, group]));
+          return [
+            ...prevGroups.filter((group) => !fetchedIds.has(group.comm_id)),
+            ...newGroups.map((group) => ({ ...group, ...liveGroups.get(group.comm_id) })),
+          ];
+        });
+        setCommID2Name((prev) => ({ ...newCommID2Name, ...prev }));
       })
       .catch((error) => {
-        console.error("Error:", error);
+        if (error.name !== "AbortError") console.error("Error:", error);
       });
+    return () => controller.abort();
   }, []);
 
   let selectedMessages = messages[selectedGroup] || [];

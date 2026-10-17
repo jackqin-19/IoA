@@ -37,6 +37,53 @@ def non_streaming_litellm_completions(**params):
         yield {"choices": [{"delta": {"content": char}}]}
 
 
+def build_conclusion(messages):
+    """Summarize one execution without asking the interpreter to run again."""
+    final_message = next(
+        (
+            item["content"].strip()
+            for item in reversed(messages)
+            if item.get("role") == "assistant"
+            and item.get("type") == "message"
+            and item.get("content", "").strip()
+        ),
+        "",
+    )
+
+    last_code_index = next(
+        (
+            index
+            for index in range(len(messages) - 1, -1, -1)
+            if messages[index].get("role") == "assistant"
+            and messages[index].get("type") == "code"
+            and messages[index].get("content", "").strip()
+        ),
+        None,
+    )
+
+    parts = [final_message] if final_message else []
+    if last_code_index is not None:
+        code_message = messages[last_code_index]
+        code = code_message["content"].strip()
+        if code not in final_message:
+            language = code_message.get("format", "")
+            parts.append(f"Executed code:\n```{language}\n{code}\n```")
+
+        output = "\n".join(
+            item.get("content", "").strip()
+            for item in messages[last_code_index + 1 :]
+            if item.get("role") == "computer"
+            and item.get("type") == "console"
+            and item.get("content", "").strip()
+        )
+        if output and output not in final_message:
+            parts.append(f"Output:\n```\n{output}\n```")
+
+    if not parts:
+        raise ValueError("Open Interpreter returned no final message or executed code")
+    return "\n\n".join(parts)
+
+
 @app.post("/run")
 async def run(task_desc: TaskDesc):
     interpreter_instance = OpenInterpreter()
@@ -57,20 +104,14 @@ async def run(task_desc: TaskDesc):
     print(f"interpreter model: {interpreter_instance.llm.model}...")
     task_desc.task_desc = "Here is a task that you should finish:\n" + task_desc.task_desc
     try:
-        intermediate_msgs = await safe_chat(interpreter_instance, task_desc.task_desc)
-        conclusion_msgs = await safe_chat(
-            interpreter_instance,
-            "Please summarize and provide a complied and complete conclusion as the final answer to the previous task I assigned to you. If there are any files or codes in the final answer, please print them out.",
-        )
+        await safe_chat(interpreter_instance, task_desc.task_desc)
+        messages = interpreter_instance.messages
+        conclusion = build_conclusion(messages)
     except Exception as e:
         return {
             "task_id": uuid.uuid4().hex,
             "conclusion": "Internal Server Error! The task is not completed!",
         }
-
-    conclusion = [f"{item['content']}\n" for item in conclusion_msgs]
-    conclusion = "".join(conclusion)
-    messages = interpreter_instance.messages
 
     del interpreter_instance
     return {
