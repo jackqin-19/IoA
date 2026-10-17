@@ -101,7 +101,7 @@ cd IoA
 
 #### Core Components
 
-You can directly pull the pre-built docker images from Docker Hub:
+Pull the pre-built server and client images, then build the frontend from this repository to get the redesigned UI:
 
 ```bash
 # Server
@@ -110,14 +110,15 @@ docker pull weize/ioa-server:latest
 # Client
 docker pull weize/ioa-client:latest
 
-# Server Frontend
-docker pull weize/ioa-server-frontend:latest
-
 # Rename the images
 docker tag weize/ioa-server:latest ioa-server:latest
 docker tag weize/ioa-client:latest ioa-client:latest
-docker tag weize/ioa-server-frontend:latest ioa-server-frontend:latest
+
+# Redesigned frontend from this repository
+docker build -f dockerfiles/server_frontend.Dockerfile -t ioa-server-frontend:latest .
 ```
+
+The pre-built `weize/ioa-server-frontend:latest` image may still contain the older UI; building from source ensures you use the frontend in this checkout.
 
 <details>
 <summary>Or you can build from source</summary>
@@ -221,13 +222,14 @@ OPENAI_BASE_URL=https://api.example.com/v1
 OPENAI_API_BASE_URL=https://api.example.com/v1
 OPENAI_API_BASE=https://api.example.com/v1
 
-FAST_LLM=gpt-5.4
 SMART_LLM=gpt-5.4
 
 OPENAI_RESPONSE_LOG_PATH=/app/openai_response_log
 ```
 
 The API endpoint should provide an OpenAI-compatible interface.
+
+For the Open Instruction demo, `SMART_LLM` selects the model for both agent collaboration and tool execution. Change this one value to switch models.
 
 > ⚠️ **Important:** Do not commit `.env` to Git. It may contain private API credentials.
 
@@ -453,14 +455,14 @@ autogpt.yaml
 open_interpreter.yaml
 ```
 
-The LLM model can be configured in these files.
+The Open Instruction agent configs read their LLM model from `SMART_LLM` in `.env`.
 
 For example:
 
 ```yaml
 llm:
   llm_type: openai-chat
-  model: gpt-5.4
+  model: ${SMART_LLM}
   temperature: 0.1
 ```
 

@@ -20,6 +20,15 @@ def update_custom_config(config):
         _update_config(config, custom_config)
 
 
+def resolve_model_config(config):
+    llm_config = config.get("comm", {}).get("llm", {})
+    if llm_config.get("model") == "${SMART_LLM}":
+        model = os.getenv("SMART_LLM", "").strip()
+        if not model:
+            raise ValueError("SMART_LLM must be set for this agent's comm.llm.model")
+        llm_config["model"] = model
+
+
 try:
     global_config = yaml.safe_load(open(os.path.join("configs", "default_config.yaml")))
 except FileNotFoundError:
@@ -28,3 +37,4 @@ except FileNotFoundError:
     )
     global_config = {}
 update_custom_config(global_config)
+resolve_model_config(global_config)
