@@ -29,8 +29,7 @@ function App() {
     // }],
   });
   const [selectedGroup, setSelectedGroup] = useState(null);
-
-  let commID2Name = {};
+  const [commID2Name, setCommID2Name] = useState({});
 
   function update_message(message) {
     setMessages((prevMessages) => {
@@ -71,7 +70,10 @@ function App() {
               },
               ...prevGroups,
             ]);
-            commID2Name[message.comm_id] = message.team_name;
+            setCommID2Name((prev) => ({
+              ...prev,
+              [message.comm_id]: message.team_name || message.agent_names.join(", "),
+            }));
             break;
           case "message":
             update_message(message);
@@ -134,11 +136,12 @@ function App() {
         console.log("Success:", data);
         let newMessages = {};
         let newGroups = [];
+        let newCommID2Name = {};
         for (const comm_id in data) {
           let chatRecord = data[comm_id]["chat_record"];
           let agentNames = data[comm_id]["agent_names"];
           let teamName = data[comm_id]["team_name"] || agentNames.join(", ");
-          commID2Name[comm_id] = teamName;
+          newCommID2Name[comm_id] = teamName;
           chatRecord.forEach((message) => {
             newMessages[comm_id] = newMessages[comm_id] || [];
             newMessages[comm_id].push(message);
@@ -159,6 +162,7 @@ function App() {
         }
         setMessages(newMessages);
         setGroups(newGroups);
+        setCommID2Name(newCommID2Name);
       })
       .catch((error) => {
         console.error("Error:", error);

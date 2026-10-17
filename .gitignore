@@ -169,3 +169,11 @@ logs/
 **/volumes/
 results/
 **/.env
+
+# Test scripts
+test_*.py
+launch_*.py
+create_*.py
+
+# Development files
+CLAUDE.md

@@ -3,9 +3,8 @@ import './Message.css';
 import getAvatar from '../../utils/avatar';
 import ReactMarkdown from 'react-markdown';
 
-
 function Message({ message }) {
-  let type2string = {
+  const type2string = {
     0: "default",
     1: "proposal",
     2: "vote",
@@ -18,30 +17,69 @@ function Message({ message }) {
     9: "pause",
     10: "conclude group discussion",
     11: "conclusion",
-  }
-  let type = type2string[message.type];
+  };
+
+  const type = type2string[message.type] || "default";
+
+  // Get badge class based on message type
+  const getBadgeClass = (type) => {
+    if (type.includes("proposal")) return "type-proposal";
+    if (type.includes("vote")) return "type-vote";
+    if (type.includes("discussion")) return "type-discussion";
+    if (type.includes("conclusion")) return "type-conclusion";
+    return "";
+  };
+
   let nextSpeaker = message.next_speaker;
   if (Array.isArray(nextSpeaker) && nextSpeaker.length !== 0) {
-    nextSpeaker = message.next_speaker.join(", ");
+    nextSpeaker = message.next_speaker;
+  } else {
+    nextSpeaker = [];
   }
+
   return (
     <div className="message">
       <div className="message-header">
-        <img src={`${getAvatar(message.sender)}`} alt={`${message.sender}'s avatar`} className="avatar" />
+        <img
+          src={getAvatar(message.sender)}
+          alt={`${message.sender}'s avatar`}
+          className="avatar"
+        />
         <span className="username">{message.sender}</span>
+        {type && (
+          <span className={`message-badge ${getBadgeClass(type)}`}>
+            {type}
+          </span>
+        )}
       </div>
       <div className="message-bubble">
-        <ReactMarkdown className="message-value">
+        <ReactMarkdown className="message-content">
           {message.content}
         </ReactMarkdown>
-        <span className="message-key">Next Speaker: </span>
-        <span className='message-value'>{nextSpeaker}</span>
-        <br></br>
-        <span className="message-key">Type: </span>
-        <span className='message-value'>{type}</span>
-        <br></br>
-        <span className="message-key">Updated Plan: </span>
-        <span className='message-value'>{message.updated_plan}</span>
+
+        <div className="message-metadata">
+          {nextSpeaker && nextSpeaker.length > 0 && (
+            <div className="message-meta-row">
+              <span className="message-key">Next Speaker:</span>
+              <div className="message-next-speaker">
+                {Array.isArray(nextSpeaker) ? (
+                  nextSpeaker.map((speaker, idx) => (
+                    <span key={idx} className="speaker-tag">{speaker}</span>
+                  ))
+                ) : (
+                  <span className="speaker-tag">{nextSpeaker}</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {message.updated_plan && (
+            <div className="message-meta-row">
+              <span className="message-key">Updated Plan:</span>
+              <span className="message-value">{message.updated_plan}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

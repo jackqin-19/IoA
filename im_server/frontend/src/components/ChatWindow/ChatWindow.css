@@ -1,55 +1,153 @@
 .chat-window {
   display: flex;
   flex-direction: column;
-  height: 100%; /* Adjust based on your container */
-  border: 1px solid lightgray;
-  width: 100%;
+  height: 100%;
+  flex: 1;
+  background-color: var(--color-bg-secondary);
+  overflow: hidden;
 }
 
 .chat-header {
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-bottom: 1px solid lightgray;
-  font-weight: bold;
-  font-size: 12px; /* Adjust the font size as needed */
+  background-color: var(--color-bg-primary);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.chat-header-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
 .chat-messages {
-  flex-grow: 1; /* Allow message area to take up available space */
-  overflow-y: auto; /* Enable scrolling for long chats */
-  padding: 10px;
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-lg);
 }
 
 .chat-goal {
-  padding: 10px;
-  background-color: rgb(224, 240, 255);
-  border-radius: 15px;
-  border: 1px solid #ddd;
-  white-space: pre-wrap;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+  border-radius: var(--radius-lg);
+  border: 1px solid #bfdbfe;
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .chat-goal-title {
-  font-weight: bold;
+  font-weight: 700;
+  font-size: var(--font-size-base);
+  color: var(--color-primary-dark);
+  margin-bottom: var(--spacing-sm);
+  display: block;
 }
 
+.chat-goal-content {
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.chat-goal-content p {
+  margin: 0;
+}
+
+/* Empty state when no team is selected */
+.chat-window-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.chat-window-empty-icon {
+  font-size: 80px;
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.2;
+}
+
+.chat-window-empty-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.chat-window-empty-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* Scrollbar styling */
+.chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Message input placeholder (currently disabled but styled for future) */
 .message-input {
   display: flex;
-  padding: 10px;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--color-bg-primary);
+  border-top: 1px solid var(--color-border);
+  gap: var(--spacing-sm);
 }
 
 .message-input input[type="text"] {
-  flex-grow: 1;
-  padding: 10px;
-  border: 1px solid lightgray;
-  margin-right: 10px;
+  flex: 1;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  transition: all 0.15s ease;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.message-input input[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .message-input button {
-  background-color: #0084ff;
+  background-color: var(--color-primary);
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
   cursor: pointer;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  transition: all 0.15s ease;
+}
+
+.message-input button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.message-input button:active {
+  transform: scale(0.98);
 }

@@ -1,159 +1,196 @@
 .chat-list {
-  width: 30%;
-  background-color: #f7f7f7;
-  border-right: 1px solid lightgray;
-  overflow-y: auto;
-  overflow-x: hidden;
+  width: 320px;
+  min-width: 280px;
+  max-width: 400px;
+  background-color: var(--color-bg-primary);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
   height: 100%;
 }
 
-.chat-list ul {
-  list-style-type: none; /* Removes bullet points */
-  padding: 0; /* No padding for the list */
-  margin-top: 0;
-  margin-bottom: 0;
+.chat-list-header {
+  padding: var(--spacing-lg) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-primary);
 }
 
-.chat-item {
-  /* Style individual chat items */
+.chat-list-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
   display: flex;
-  flex-direction: row;
-  cursor: pointer;
-  padding: 10px;
-  border-bottom: 1px solid lightgray; /* Divider between groups */
-  white-space: pre-wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.chat-list-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.chat-list-scroll {
+  flex: 1;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
+.chat-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chat-item,
+.chat-item-selected {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid var(--color-border-light);
+  background-color: var(--color-bg-primary);
+}
+
 .chat-item:hover {
-  background-color: lightgray;
+  background-color: var(--color-bg-hover);
 }
 
 .chat-item-selected {
-  display: flex;
-  flex-direction: row;
-  background-color: #d2d2d2;
-  white-space: pre-wrap;
-  padding: 10px;
-  border-bottom: 1px solid lightgray; /* Divider between groups */
+  background-color: var(--color-bg-tertiary);
+  border-left: 3px solid var(--color-primary);
+  padding-left: calc(var(--spacing-md) - 3px);
 }
 
 .avatar-square {
-  width: 50px; /* Adjust this size as needed */
-  height: 50px;
+  width: 56px;
+  height: 56px;
   display: grid;
   align-items: center;
   justify-content: center;
-  border-radius: 3px;
-  background-color: #dddee0;
-}
-
-.avatar-flex {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary));
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .avatar-group-list {
-  width: 20px;
-  height: 20px;
-  /* border-radius: 3px; */
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
 }
 
-/* Layout for a single avatar */
+/* Avatar grid layouts */
 .avatar-grid-one {
-  width: 50px;
-  height: 50px;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
-  justify-items: center;
-  flex-shrink: 0;
   grid-template-areas: "avatar0";
 }
 
-/* Layout for two avatars, side by side */
+.avatar-grid-one .avatar-group-list {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+}
+
 .avatar-grid-two {
-  width: 50px;
-  height: 50px;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: 1fr;
-  justify-items: center;
-  flex-shrink: 0;
+  gap: 4px;
   grid-template-areas: "avatar0 avatar1";
 }
 
-/* Layout for three avatars, two on top and one at the bottom */
 .avatar-grid-three {
-  width: 50px;
-  height: 50px;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: 1fr 1fr;
+  gap: 4px;
   grid-template-areas:
     "avatar0 avatar1"
-    "avatar2 avatar2"; /* Single avatar centered at the bottom */
-  justify-items: center;
-  flex-shrink: 0;
+    "avatar2 avatar2";
 }
 
-/* Layout for four avatars in a 2x2 grid */
 .avatar-grid-four {
-  width: 50px;
-  height: 50px;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
+  gap: 4px;
   grid-template-areas:
     "avatar0 avatar1"
     "avatar2 avatar3";
-  justify-items: center;
-  flex-shrink: 0;
 }
 
-.avatar-0 {
-  grid-area: avatar0;
-}
-
-.avatar-1 {
-  grid-area: avatar1;
-}
-
-.avatar-2 {
-  grid-area: avatar2;
-}
-
-.avatar-3 {
-  grid-area: avatar3;
-}
+.avatar-0 { grid-area: avatar0; }
+.avatar-1 { grid-area: avatar1; }
+.avatar-2 { grid-area: avatar2; }
+.avatar-3 { grid-area: avatar3; }
 
 .group-info {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  margin-left: 10px;
-  max-width: calc(80%);
-}
-
-.group-title {
-  display: flex;
-  justify-content: space-between;
+  gap: var(--spacing-xs);
 }
 
 .group-name {
-  font-weight: bold;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-.group-time {
-  font-size: 0.8em;
-  color: gray;
+  margin: 0;
 }
 
 .group-description {
-  display: inline-block;
-  max-width: calc(100%);
-  color: #929292;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+/* Empty state for group list */
+.chat-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  height: 100%;
+  color: var(--color-text-secondary);
+}
+
+.chat-list-empty-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
+  opacity: 0.3;
+}
+
+.chat-list-empty-text {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
+/* Scrollbar styling */
+.chat-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-list-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-list-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.chat-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
 }
