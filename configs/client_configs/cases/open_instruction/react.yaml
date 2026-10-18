@@ -1,0 +1,23 @@
+server:
+  port: 7788
+  hostname: ioa-server
+
+tool_agent:
+  image_name: react-agent:latest
+  container_name: react-open-instruction-agent
+  agent_type: ReAct
+  agent_name: ReAct Agent
+  desc: A ReAct agent that can execute code for calculation and other routine tasks.
+  tools_config: /app/tools_code_executor.yaml
+  model: ${SMART_LLM}
+  rag: {}
+
+comm:
+  name: ReAct
+  desc: A ReAct assistant that can execute code for calculation and other routine tasks.
+  type: Thing Assistant
+  support_nested_teams: false
+  llm:
+    llm_type: openai-chat
+    model: ${SMART_LLM}
+    temperature: 0.1

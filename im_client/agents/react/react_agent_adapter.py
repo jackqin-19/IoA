@@ -43,8 +43,10 @@ class ReActAgent(AgentAdapter):
         headers = {"Content-Type": "application/json"}
         async with httpx.AsyncClient(timeout=httpx.Timeout(None)) as client:
             response = await client.post(self.url + "/run", json=data.model_dump(), headers=headers)
-        logger.info(f"Received response: {response.text}")
-        return response.text
+        response.raise_for_status()
+        conclusion = response.json()
+        logger.info(f"Received response: {conclusion}")
+        return conclusion
 
     async def add_to_memory(self, memoryAdded: LLMResult):
         headers = {"Content-Type": "application/json"}

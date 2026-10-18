@@ -3,7 +3,6 @@ uvicorn
 docker
 arxiv
 scholarly
-git+https://github.com/rytilahti/python-miio.git
 llama-index
 llama-index-agent-openai
 llama-index-cli

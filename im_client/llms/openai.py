@@ -43,6 +43,42 @@ else:
 OPENAI_RESPONSE_LOG_PATH = os.environ.get("OPENAI_RESPONSE_LOG_PATH", "")
 
 
+def parse_json_object_response(content: str) -> dict:
+    """Read one action from a JSON-object response, including adjacent objects."""
+    if not content.strip():
+        raise ValueError("Expected a non-empty JSON object in model response")
+    try:
+        parsed = json.loads(content)
+    except json.JSONDecodeError as error:
+        if error.msg == "Extra data" and content.lstrip().startswith("{"):
+            decoder = json.JSONDecoder()
+            objects = []
+            position = 0
+            try:
+                while position < len(content):
+                    while position < len(content) and content[position].isspace():
+                        position += 1
+                    if position == len(content):
+                        break
+                    value, position = decoder.raw_decode(content, position)
+                    if not isinstance(value, dict):
+                        raise ValueError("Expected adjacent JSON objects")
+                    objects.append(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError("Invalid content after JSON object") from exc
+            if len(objects) > 1:
+                logger.warn("Model returned multiple JSON objects; using the first action")
+                parsed = objects[0]
+            else:
+                raise ValueError("Expected multiple complete JSON objects") from error
+        else:
+            parsed = json.loads(JsonRepair(content).repair())
+
+    if not isinstance(parsed, dict) or not parsed:
+        raise ValueError("Expected a non-empty JSON object in model response")
+    return parsed
+
+
 async def async_write_to_file(data: dict, filename: str):
     os.makedirs(OPENAI_RESPONSE_LOG_PATH, exist_ok=True)
     file_path = os.path.join(OPENAI_RESPONSE_LOG_PATH, filename)
@@ -166,12 +202,7 @@ class OpenAIChat(BaseChatModel):
 
         if response_format is not NOT_GIVEN and response_format["type"] == "json_object":
             if response.choices[0].message.content is not None:
-                try:
-                    # content = json.loads(JsonRepair(response.choices[0].message.content).repair())
-                    content = json.loads(response.choices[0].message.content)
-                except json.JSONDecodeError:
-                    content = json.loads(JsonRepair(response.choices[0].message.content).repair())
-
+                content = parse_json_object_response(response.choices[0].message.content)
             else:
                 content = None
         else:

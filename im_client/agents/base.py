@@ -34,6 +34,12 @@ class AgentAdapter:
             case "ReAct":
                 from agents import ReActAgent
 
+                model = config.get("model", "")
+                if model == "${SMART_LLM}":
+                    model = os.environ.get("SMART_LLM", "").strip()
+                    if not model:
+                        raise ValueError("SMART_LLM must be set for ReAct tool_agent.model")
+
                 client = docker.from_env()
                 exist_container = client.containers.list(all=True, filters={"name": config["container_name"]})
                 if len(exist_container) > 0:
@@ -49,7 +55,7 @@ class AgentAdapter:
                         f"BING_API_KEY={os.environ.get('BING_API_KEY')}",
                         f"AGENT_NAME={config.get('agent_name', '')}",
                         f"AGENT_DESC={config.get('desc', '')}",
-                        f"AGENT_MODEL={config.get('model', '')}",
+                        f"AGENT_MODEL={model}",
                         f"MAX_NUM_STEPS={config.get('max_num_steps', 20)}",
                         f"TOOLS_CONFIG={config.get('tools_config')}",
                         f"OPENAI_API_BASE={os.environ.get('OPENAI_API_BASE', '')}",
