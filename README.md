@@ -66,8 +66,10 @@ The main purpose of this version is to reproduce the original IoA system locally
 - 🌐 Added support for OpenAI-compatible API endpoints through environment variables.
 - 🐳 Preserved the original Docker-based deployment architecture.
 - 🧪 Verified the basic multi-agent collaboration workflow between AutoGPT and Open Interpreter.
+- Integrated ReAct as a third Open Instruction agent and verified its standalone code execution.
+- Verified that AutoGPT, Open Interpreter, and ReAct can exchange messages and reach a shared conclusion in one session.
 
-The current version uses `gpt-5.4` as the configured LLM model in the Open Instruction demo. The actual API endpoint and API key are configured locally through `.env`.
+The Open Instruction demo reads its model from `SMART_LLM`. Configure the model, API endpoint, and API key locally in `.env`; do not commit that file.
 
 Future work will focus on improving agent coordination, task execution, and the overall efficiency of multi-agent collaboration.
 
@@ -120,6 +122,12 @@ docker build -f dockerfiles/server_frontend.Dockerfile -t ioa-server-frontend:la
 
 The pre-built `weize/ioa-server-frontend:latest` image may still contain the older UI; building from source ensures you use the frontend in this checkout.
 
+The ReAct client needs the dependency and response-parsing fixes in this checkout. Build its client image from source even if you use the pre-built image for AutoGPT and Open Interpreter:
+
+```bash
+docker build -f dockerfiles/client.Dockerfile -t ioa-client:react .
+```
+
 <details>
 <summary>Or you can build from source</summary>
 
@@ -138,11 +146,15 @@ docker build -f dockerfiles/server_frontend.Dockerfile -t ioa-server-frontend:la
 
 #### Agent Images (Build as needed)
 
-```bash
-# ReAct Agent
-docker pull weize/react-agent:latest
-docker tag weize/react-agent:latest react-agent:latest
+For the ReAct integration in this fork, build the tool image from source:
 
+```bash
+docker build -f dockerfiles/tool_agents/react.Dockerfile -t react-agent:latest .
+```
+
+The following pre-built images remain options for the other agents:
+
+```bash
 # AutoGPT
 docker pull weize/autogpt:latest
 docker tag weize/autogpt:latest autogpt:latest
@@ -222,7 +234,7 @@ OPENAI_BASE_URL=https://api.example.com/v1
 OPENAI_API_BASE_URL=https://api.example.com/v1
 OPENAI_API_BASE=https://api.example.com/v1
 
-SMART_LLM=gpt-5.4
+SMART_LLM=your_openai_compatible_model
 
 OPENAI_RESPONSE_LOG_PATH=/app/openai_response_log
 ```
@@ -258,6 +270,8 @@ A successful deployment should contain services such as:
 ```text
 autogpt-client
 open-interpreter-client
+react-client
+react-open-instruction-agent
 ioa-server
 server_frontend
 milvus-standalone
@@ -275,6 +289,7 @@ Frontend:          http://127.0.0.1
 IoA Server:        http://127.0.0.1:7788
 AutoGPT Client:    http://127.0.0.1:5050
 Open Interpreter:  http://127.0.0.1:5051
+ReAct Client:      http://127.0.0.1:5052
 Attu:              http://127.0.0.1:8000
 ```
 
@@ -312,6 +327,20 @@ The `team_member_names` field specifies which agents participate in the task.
 
 When it is left as `None`, the agent can decide whether to form a team autonomously.
 
+To test ReAct on its own, send one request to its client on port 5052:
+
+```cmd
+curl -X POST http://127.0.0.1:5052/launch_goal -H "Content-Type: application/json" -d "{\"goal\":\"Use the code execution tool to evaluate sum(range(1, 11)) and report the integer output.\",\"team_member_names\":[\"ReAct\"]}"
+```
+
+To test all three agents in one session:
+
+```cmd
+curl -X POST http://127.0.0.1:5052/launch_goal -H "Content-Type: application/json" -d "{\"goal\":\"As a team, calculate the sum of the integers from 1 through 10 and explain the result. Ask each member to contribute before concluding.\",\"team_member_names\":[\"AutoGPT\",\"Open Interpreter\",\"ReAct\"]}"
+```
+
+In the verified three-agent run, all three agents sent messages in the same session and the final conclusion was `55`. That run used discussion messages; it did not establish that Open Interpreter actually invoked its code execution tool. Verify tool use from the relevant tool-container logs rather than the agent's written claim. A timed-out HTTP request may continue running in the background, so inspect the session record before retrying.
+
 ---
 
 ## 🤝 How Multi-Agent Collaboration Works
@@ -347,6 +376,7 @@ For example:
 
 - **AutoGPT** can focus on reasoning, planning, and task coordination.
 - **Open Interpreter** can execute code and interact with tools.
+- **ReAct** can reason through a task and call its code execution tool.
 - **IoA** provides the communication and coordination infrastructure between agents.
 
 This allows the system to solve tasks collaboratively rather than relying entirely on a single agent.
@@ -402,6 +432,13 @@ docker logs -f autogpt-client
 docker logs -f open-interpreter-client
 ```
 
+### View ReAct logs
+
+```bash
+docker logs -f react-client
+docker logs -f react-open-instruction-agent
+```
+
 ### View IoA server logs
 
 ```bash
@@ -432,12 +469,6 @@ docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_i
 docker ps
 ```
 
-### Stop all containers
-
-```bash
-docker stop $(docker ps -q)
-```
-
 ---
 
 ## 🔧 Configuration
@@ -453,6 +484,7 @@ The main agent configurations are:
 ```text
 autogpt.yaml
 open_interpreter.yaml
+react.yaml
 ```
 
 The Open Instruction agent configs read their LLM model from `SMART_LLM` in `.env`.
