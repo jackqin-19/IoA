@@ -79,6 +79,8 @@ Future work will focus on improving agent coordination, task execution, and the 
 
 Get IoA up and running in just a few steps:
 
+For a first deployment, follow Step 3 (build the needed images), Step 4 (start Milvus and its dependencies), Step 5 (configure `.env`), and Step 6 (start Open Instruction) in order. Then use Step 6 to check container status and Step 7 to find the service addresses; confirm the three agents are registered before running the ReAct standalone test and the three-agent test in **Test It Out**. The Milvus Compose file does not need the API settings in `.env`, but Open Instruction does.
+
 ### 1. 📋 Prerequisites
 
 - Ensure you have [Docker](https://www.docker.com/) installed on your system.
@@ -333,11 +335,13 @@ To test ReAct on its own, send one request to its client on port 5052:
 curl -X POST http://127.0.0.1:5052/launch_goal -H "Content-Type: application/json" -d "{\"goal\":\"Use the code execution tool to evaluate sum(range(1, 11)) and report the integer output.\",\"team_member_names\":[\"ReAct\"]}"
 ```
 
-To test all three agents in one session:
+To test all three agents in one session from the AutoGPT client on port 5050:
 
 ```cmd
-curl -X POST http://127.0.0.1:5052/launch_goal -H "Content-Type: application/json" -d "{\"goal\":\"As a team, calculate the sum of the integers from 1 through 10 and explain the result. Ask each member to contribute before concluding.\",\"team_member_names\":[\"AutoGPT\",\"Open Interpreter\",\"ReAct\"]}"
+curl -X POST http://127.0.0.1:5050/launch_goal -H "Content-Type: application/json" -d "{\"goal\":\"As a team, calculate the sum of the integers from 1 through 10 and explain the result. Ask each member to contribute before concluding.\",\"team_member_names\":[\"AutoGPT\",\"Open Interpreter\",\"ReAct\"]}"
 ```
+
+All three clients expose the same `/launch_goal` request format. Port 5050 makes AutoGPT the initiating agent; port 5052 can also initiate a team through ReAct, but the initiating agent controls the first turn and can affect the subsequent discussion and task assignments.
 
 In the verified three-agent run, all three agents sent messages in the same session and the final conclusion was `55`. That run used discussion messages; it did not establish that Open Interpreter actually invoked its code execution tool. Verify tool use from the relevant tool-container logs rather than the agent's written claim. A timed-out HTTP request may continue running in the background, so inspect the session record before retrying.
 
