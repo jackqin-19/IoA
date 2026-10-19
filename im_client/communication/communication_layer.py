@@ -468,7 +468,7 @@ class CommunicationLayer:
             team_members = []
             for item in agents_upated_for_contact:
                 if isinstance(item, dict) and item.get("name") != self.name:
-                    if item.get("name" not in self.agent_contact):
+                    if item.get("name") not in self.agent_contact:
                         self.agent_contact[item.get("name")] = item
                     team_members.append(item)
 

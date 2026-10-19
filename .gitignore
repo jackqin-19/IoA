@@ -177,3 +177,5 @@ create_*.py
 
 # Development files
 CLAUDE.md
+/START_DOCKER.md
+/IOA_LOCAL_NOTES.md

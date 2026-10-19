@@ -3,6 +3,38 @@ import os
 from .log import logger
 
 
+def _validate_custom_keys(custom, default, path=""):
+    if not isinstance(custom, dict):
+        raise ValueError(f"Configuration section {path or '<root>'} must be a mapping")
+    for key, value in custom.items():
+        field = f"{path}.{key}" if path else key
+        if key not in default and field != "tool_agent.max_num_steps":
+            raise ValueError(f"Unknown configuration field: {field}")
+        if isinstance(value, dict):
+            expected = default.get(key, {})
+            if not isinstance(expected, dict):
+                raise ValueError(f"Configuration section {field} must not be a mapping")
+            _validate_custom_keys(value, expected, field)
+        elif isinstance(default.get(key), dict) and value is not None:
+            raise ValueError(f"Configuration section {field} must be a mapping")
+
+
+def _validate_required_config(config):
+    for section, fields in {
+        "server": ("hostname", "port"),
+        "comm": ("name", "desc", "type"),
+        "comm.llm": ("llm_type", "model"),
+    }.items():
+        value = config
+        for part in section.split("."):
+            value = value.get(part) if isinstance(value, dict) else None
+        if not isinstance(value, dict):
+            raise ValueError(f"Configuration section {section} must be a mapping")
+        for field in fields:
+            if value.get(field) is None or value.get(field) == "":
+                raise ValueError(f"Missing required configuration field: {section}.{field}")
+
+
 def _update_config(default, user):
     for key, value in user.items():
         if isinstance(value, dict):
@@ -16,8 +48,11 @@ def update_custom_config(config):
     if custom_config_path := os.getenv("CUSTOM_CONFIG", ""):
         logger.info("Loading custom config from %s" % custom_config_path)
         custom_config: dict = yaml.safe_load(open(custom_config_path))
-
+        if config:
+            _validate_custom_keys(custom_config, config)
         _update_config(config, custom_config)
+    if config:
+        _validate_required_config(config)
 
 
 def resolve_model_config(config):

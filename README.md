@@ -467,6 +467,22 @@ docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_i
 docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml up -d
 ```
 
+### Apply configuration changes to ReAct
+
+The client reads its mounted YAML configuration when it starts. After editing `configs/client_configs/cases/open_instruction/react.yaml`, restart the ReAct client:
+
+```bash
+docker restart react-client
+```
+
+Environment variables from `.env` are set when the container is created. After changing them, recreate only the ReAct service to apply the new values:
+
+```bash
+docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml up -d --no-deps --force-recreate ReAct
+```
+
+Wait for any active ReAct task to finish first: restarting the client can replace its tool container. Changes to Python code require rebuilding the affected image before recreating its container.
+
 ### Check whether a container is running
 
 ```bash
