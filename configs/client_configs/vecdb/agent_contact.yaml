@@ -23,7 +23,7 @@ collectionSchema:
 using: default
 consistence_level: Strong
 shards_num: 2
-auto_index: True
+auto_create_index: True
 
 index:
   - name: desc

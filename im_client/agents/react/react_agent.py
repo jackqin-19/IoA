@@ -232,8 +232,6 @@ class ReActAgentServer:
         self.task_desc[uid] = task_desc
 
     async def add_to_memory(self, message: LLMResult | list[LLMResult], uid: str):
-        if isinstance(message, list):
-            message = [message]
         self.memory[uid].add_messages(message)
 
     async def get_memory(self, uid: str):
