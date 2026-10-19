@@ -9,7 +9,7 @@ tool_agent:
   agent_name: ReAct Agent
   desc: A ReAct agent that can execute code for calculation and other routine tasks.
   tools_config: /app/tools_code_executor.yaml
-  model: ${SMART_LLM}
+  model: ${FAST_LLM}
   rag: {}
 
 comm:
@@ -19,5 +19,5 @@ comm:
   support_nested_teams: false
   llm:
     llm_type: openai-chat
-    model: ${SMART_LLM}
+    model: ${FAST_LLM}
     temperature: 0.1

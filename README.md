@@ -69,7 +69,7 @@ The main purpose of this version is to reproduce the original IoA system locally
 - Integrated ReAct as a third Open Instruction agent and verified its standalone code execution.
 - Verified that AutoGPT, Open Interpreter, and ReAct can exchange messages and reach a shared conclusion in one session.
 
-The Open Instruction demo reads its model from `SMART_LLM`. Configure the model, API endpoint, and API key locally in `.env`; do not commit that file.
+The Open Instruction demo keeps `SMART_LLM=gpt-5.4` and `FAST_LLM=gpt-4o` in `.env`. Its three client configurations select `FAST_LLM` for communication and tool execution. Configure the API endpoint and API key locally in `.env`; do not commit that file.
 
 Future work will focus on improving agent coordination, task execution, and the overall efficiency of multi-agent collaboration.
 
@@ -105,30 +105,23 @@ cd IoA
 
 #### Core Components
 
-Pull the pre-built server and client images, then build the frontend from this repository to get the redesigned UI:
+Pull the server image, then build the IoA client from this checkout. The Open Instruction model selection and ReAct fixes require the current client code. Both client tags use the same build:
 
 ```bash
 # Server
 docker pull weize/ioa-server:latest
 
-# Client
-docker pull weize/ioa-client:latest
-
-# Rename the images
+# Tag the server image for Compose
 docker tag weize/ioa-server:latest ioa-server:latest
-docker tag weize/ioa-client:latest ioa-client:latest
+
+# IoA clients for AutoGPT, Open Interpreter, and ReAct
+docker build -f dockerfiles/client.Dockerfile -t ioa-client:latest -t ioa-client:react .
 
 # Redesigned frontend from this repository
 docker build -f dockerfiles/server_frontend.Dockerfile -t ioa-server-frontend:latest .
 ```
 
-The pre-built `weize/ioa-server-frontend:latest` image may still contain the older UI; building from source ensures you use the frontend in this checkout.
-
-The ReAct client needs the dependency and response-parsing fixes in this checkout. Build its client image from source even if you use the pre-built image for AutoGPT and Open Interpreter:
-
-```bash
-docker build -f dockerfiles/client.Dockerfile -t ioa-client:react .
-```
+The pre-built `weize/ioa-server-frontend:latest` image may still contain the older UI; building from source ensures you use the frontend in this checkout. Do not substitute the pre-built `weize/ioa-client:latest` for this fork's client build.
 
 <details>
 <summary>Or you can build from source</summary>
@@ -138,7 +131,7 @@ docker build -f dockerfiles/client.Dockerfile -t ioa-client:react .
 docker build -f dockerfiles/server.Dockerfile -t ioa-server:latest .
 
 # Client
-docker build -f dockerfiles/client.Dockerfile -t ioa-client:latest .
+docker build -f dockerfiles/client.Dockerfile -t ioa-client:latest -t ioa-client:react .
 
 # Server Frontend
 docker build -f dockerfiles/server_frontend.Dockerfile -t ioa-server-frontend:latest .
@@ -236,14 +229,15 @@ OPENAI_BASE_URL=https://api.example.com/v1
 OPENAI_API_BASE_URL=https://api.example.com/v1
 OPENAI_API_BASE=https://api.example.com/v1
 
-SMART_LLM=your_openai_compatible_model
+SMART_LLM=gpt-5.4
+FAST_LLM=gpt-4o
 
 OPENAI_RESPONSE_LOG_PATH=/app/openai_response_log
 ```
 
 The API endpoint should provide an OpenAI-compatible interface.
 
-For the Open Instruction demo, `SMART_LLM` selects the model for both agent collaboration and tool execution. Change this one value to switch models.
+For the Open Instruction demo, `SMART_LLM` and `FAST_LLM` are both available in the three IoA client containers, but the mounted agent YAML files select `${FAST_LLM}`. The communication layer and tool adapters use that resolved model. The old AutoGPT tool container requires its own `SMART_LLM` to be a supported model, so its client passes the selected model (`gpt-4o` in this example) as the tool container's `SMART_LLM`. Changing `.env`'s `SMART_LLM` alone will not change the model used by these three agents. After changing `FAST_LLM`, recreate the affected clients to apply it.
 
 > ⚠️ **Important:** Do not commit `.env` to Git. It may contain private API credentials.
 
@@ -343,7 +337,7 @@ curl -X POST http://127.0.0.1:5050/launch_goal -H "Content-Type: application/jso
 
 All three clients expose the same `/launch_goal` request format. Port 5050 makes AutoGPT the initiating agent; port 5052 can also initiate a team through ReAct, but the initiating agent controls the first turn and can affect the subsequent discussion and task assignments.
 
-In the verified three-agent run, all three agents sent messages in the same session and the final conclusion was `55`. That run used discussion messages; it did not establish that Open Interpreter actually invoked its code execution tool. Verify tool use from the relevant tool-container logs rather than the agent's written claim. A timed-out HTTP request may continue running in the background, so inspect the session record before retrying.
+In an initial three-agent run, all three agents sent messages in the same session and concluded `55`; that run did not establish Open Interpreter tool use. In a later run with explicit membership, the Server recorded all three agents, AutoGPT and Open Interpreter executed Python tools, and ReAct synthesized their results. The team returned a correct total of `100` and a two-decimal mean of `14.29`, but incorrectly called that mean exact (`100/7` is exact). That collaboration run preceded the `FAST_LLM` wiring change; each agent passed a separate tool task afterward, but three-agent collaboration has not been rerun with the new wiring. Check the Server session record for participation and the tool-container logs for actual tool use; a written claim or a container marked `Up` is insufficient. A timed-out HTTP request may continue running in the background, so inspect the session record before retrying.
 
 ---
 
@@ -475,13 +469,19 @@ The client reads its mounted YAML configuration when it starts. After editing `c
 docker restart react-client
 ```
 
-Environment variables from `.env` are set when the container is created. After changing them, recreate only the ReAct service to apply the new values:
+Environment variables are set when the container is created. After changing `FAST_LLM` in `.env`, recreate the affected clients to apply the new value. For ReAct alone:
 
 ```bash
-docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml up -d --no-deps --force-recreate ReAct
+docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml up -d --no-deps --no-build --force-recreate ReAct
 ```
 
-Wait for any active ReAct task to finish first: restarting the client can replace its tool container. Changes to Python code require rebuilding the affected image before recreating its container.
+If all three clients should use the new `FAST_LLM`, recreate all three after their active tasks finish:
+
+```bash
+docker compose --env-file dockerfiles/compose/.env -f dockerfiles/compose/open_instruction.yaml up -d --no-deps --no-build --force-recreate AutoGPT OpenInterpreter ReAct
+```
+
+Restarting a client can replace its tool container. Changes to `common/` or `im_client/` Python code require rebuilding the affected `ioa-client` image tags before recreating clients; changes to the mounted agent YAML files do not require an image rebuild.
 
 ### Check whether a container is running
 
@@ -507,14 +507,14 @@ open_interpreter.yaml
 react.yaml
 ```
 
-The Open Instruction agent configs read their LLM model from `SMART_LLM` in `.env`.
+The Open Instruction agent configs read `FAST_LLM` from the client container's environment. Other configurations may still use `SMART_LLM`.
 
 For example:
 
 ```yaml
 llm:
   llm_type: openai-chat
-  model: ${SMART_LLM}
+  model: ${FAST_LLM}
   temperature: 0.1
 ```
 

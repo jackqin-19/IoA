@@ -18,5 +18,5 @@ comm:
 
   llm:
     llm_type: openai-chat
-    model: ${SMART_LLM}
+    model: ${FAST_LLM}
     temperature: 0.1

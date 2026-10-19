@@ -1,4 +1,5 @@
 import os
+from common.config import global_config
 from common.types.llm import LLMResult
 import docker
 
@@ -35,10 +36,11 @@ class AgentAdapter:
                 from agents import ReActAgent
 
                 model = config.get("model", "")
-                if model == "${SMART_LLM}":
-                    model = os.environ.get("SMART_LLM", "").strip()
+                if model in ("${SMART_LLM}", "${FAST_LLM}"):
+                    env_name = model[2:-1]
+                    model = os.environ.get(env_name, "").strip()
                     if not model:
-                        raise ValueError("SMART_LLM must be set for ReAct tool_agent.model")
+                        raise ValueError(f"{env_name} must be set for ReAct tool_agent.model")
 
                 client = docker.from_env()
                 exist_container = client.containers.list(all=True, filters={"name": config["container_name"]})
@@ -129,7 +131,7 @@ class AgentAdapter:
                         f"GOOGLE_API_KEY={os.environ.get('GOOGLE_API_KEY', '')}",
                         f"EXECUTE_LOCAL_COMMANDS={os.environ.get('EXECUTE_LOCAL_COMMANDS', '')}",
                         f"GOOGLE_CUSTOM_SEARCH_ENGINE_ID={os.environ.get('GOOGLE_CUSTOM_SEARCH_ENGINE_ID', '')}",
-                        f"SMART_LLM={os.environ.get('SMART_LLM', '')}",
+                        f"SMART_LLM={global_config['comm']['llm']['model']}",
                         f"FAST_LLM={os.environ.get('FAST_LLM', '')}",
                     ],
                     tty=True,

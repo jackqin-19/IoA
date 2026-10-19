@@ -46,11 +46,11 @@ class OpenInterpreterAgent(AgentAdapter):
     async def run(self, task_desc: str, model: str | None = None):
         selected_model = (
             model
-            or os.environ.get("SMART_LLM")
             or global_config.get("comm", {}).get("llm", {}).get("model")
+            or os.environ.get("SMART_LLM")
         )
         if not selected_model or not selected_model.strip():
-            raise ValueError("Open Interpreter requires a model in SMART_LLM or comm.llm.model")
+            raise ValueError("Open Interpreter requires a model in comm.llm.model or SMART_LLM")
         data = TaskDesc(task_desc=task_desc, model=selected_model.strip())
         headers = {"Content-Type": "application/json"}
         print(f"the model specified in Open Interpreter: {data.model}...")

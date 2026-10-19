@@ -38,7 +38,7 @@ services:
     environment:
       - HEADLESS_BROWSER=True
       - USE_WEB_BROWSER=firefox
-      - FAST_LLM=${SMART_LLM}
+      - FAST_LLM=${FAST_LLM}
       - EXECUTE_LOCAL_COMMANDS=True
       - DISABLED_COMMANDS=web_search
       - CUSTOM_CONFIG=configs/cases/open_instruction/autogpt.yaml

@@ -57,10 +57,12 @@ def update_custom_config(config):
 
 def resolve_model_config(config):
     llm_config = config.get("comm", {}).get("llm", {})
-    if llm_config.get("model") == "${SMART_LLM}":
-        model = os.getenv("SMART_LLM", "").strip()
+    placeholder = llm_config.get("model")
+    if placeholder in ("${SMART_LLM}", "${FAST_LLM}"):
+        env_name = placeholder[2:-1]
+        model = os.getenv(env_name, "").strip()
         if not model:
-            raise ValueError("SMART_LLM must be set for this agent's comm.llm.model")
+            raise ValueError(f"{env_name} must be set for this agent's comm.llm.model")
         llm_config["model"] = model
 
 
